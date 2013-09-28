@@ -14,20 +14,11 @@ on post-fs
     # Change to socket location on libkeyctrl/suntory for /data encryption
     mkdir /dev/socket/suntory 0755 system system
 
-    
-    
-    
-    
-
-
 on early-boot
-    # Start the offline charging (This blocks booting further in some cases)
-    exec /system/bin/chargemon
-
+    # Start the offline charging
+    exec /system/bin/charger
     # Make sure the crashsms/crashes are writable by crashmonitor
     
-    
-
 service iddd /system/bin/iddd
     class main
     user idd
@@ -88,15 +79,6 @@ service bugreport /system/bin/bugmailer.sh -v
     oneshot
     keycodes 114 115 116
 
-#Starting crashmonitor daemon
-
-
-
-
-# Enable audio logs
-
-
-
 import "init.ste.rc"
 on early-init
     mkdir /storage 0775 root system
@@ -150,9 +132,6 @@ on init
     chmod 664 /sys/devices/sensor00/bsr
 
 on fs
-    
-    
-
     # If you change anything here, make sure to update
     # <root>/vendor/semc/system/bootstrap/masterreset/fstab.riogrande
     # accordingly.
@@ -201,23 +180,13 @@ on post-fs-data
     write /sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun1/nofua 1
 
 on boot
-
     # Enable debugfs for eng and userdebug variants
-    
-    
-
     class_start bootstage1
-
-## Enable forced crashes
-    
-
-    
 
 # USB gadget initial setup
     write /sys/class/android_usb/android0/bDeviceClass 0
     write /sys/class/android_usb/android0/iManufacturer ${ro.product.manufacturer}
     write /sys/class/android_usb/android0/iProduct ${ro.product.model}
-
 
 # Permissions for Liblights.
     chown system system /sys/class/leds/lcd-backlight/brightness
@@ -327,8 +296,6 @@ on boot
 # SoMC: Check if ENG enabled
     exec /system/bin/usbeng
 
-
-
 # SEMC: Include IO wait time into CPU usage calculation to increase IO performance
     write /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy 1
 
@@ -339,10 +306,6 @@ write /proc/sys/kernel/sysrq 0
 
 # SEMC: Enable Wifi EAP SIM
     setprop ro.wifi.eap_sim_enabled true
-
-
-
-
 
 service kexec /system/xbin/kexec.dyn -p
     class main
@@ -464,8 +427,6 @@ service system_monitor /system/bin/system_monitor
     socket sysmon stream 0660 root system
     class core
     user root
-
-
 
 # SEMC Battery real capacity updater
 service batcap /system/bin/batcap
