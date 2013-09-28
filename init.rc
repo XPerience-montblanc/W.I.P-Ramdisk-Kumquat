@@ -115,11 +115,17 @@ loglevel 3
 
 on fs
 # mount mtd partitions
+    chmod 0755 /sbin/ext4-fix.sh
+    start ext4-fix 
     # Mount /system rw first to give the filesystem a chance to save a checkpoint
     mount yaffs2 mtd@system /system
+    mount ext4 /dev/stl9 /system wait rw
     mount yaffs2 mtd@system /system ro remount
+    mount ext4 /dev/stl9 /system wait ro remount
     mount yaffs2 mtd@userdata /data nosuid nodev
+    mount ext4 /dev/stl11 /data wait nosuid nodev
     mount yaffs2 mtd@cache /cache nosuid nodev
+    mount ext4 /dev/stl10 /cache wait nosuid nodev
 
 on post-fs
     # once everything is setup, no need to modify /
@@ -128,10 +134,6 @@ on post-fs
     # We chown/chmod /cache again so because mount is run as root + defaults
     chown system cache /cache
     chmod 0771 /cache
-
-    # This may have been created by the recovery system with odd permissions
-    chown system cache /cache/recovery
-    chmod 0770 /cache/recovery
 
     #change permissions on vmallocinfo so we can grab it from bugreports
     chown root log /proc/vmallocinfo
@@ -464,10 +466,6 @@ service bluetoothd /system/bin/bluetoothd -n
 service installd /system/bin/installd
     class main
     socket installd stream 600 system system
-
-service flash_recovery /system/etc/install-recovery.sh
-    class main
-    oneshot
 
 service racoon /system/bin/racoon
     class main
